@@ -53,7 +53,7 @@ void mosh(std::vector<char>& buffer, int seed, float noise, float duplicate, flo
 		int copyLength = copy_dist(rng);
 		int copyFromTracker = bufferSize - copyLength;
 		int copyToTracker = 0;
-		while (copyToTracker + copyLength < bufferSize && copyFromTracker > 0 && copyFromTracker + copyLength < bufferSize)
+		while (copyToTracker + copyLength < bufferSize && copyFromTracker > 0 && copyFromTracker + copyLength <= bufferSize)
 		{
 			if (float_dist(rng) < moveProbability)
 			{
