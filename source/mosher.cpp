@@ -72,6 +72,8 @@ int main(int argc, char* argv[])
 				(std::istreambuf_iterator<char>(input)),
 				(std::istreambuf_iterator<char>()));
 
+			input.close();
+
 			if (bytes.size() == 0)
 			{
 				std::cout << "File " << file << " empty, skipping file" << std::endl;
@@ -84,16 +86,20 @@ int main(int argc, char* argv[])
 				continue;
 			}
 
+			// Move header to its own vector
 			std::vector<char> header;
 			header.insert(header.begin(), std::make_move_iterator(bytes.begin()), std::make_move_iterator(bytes.begin() + headerSize));
-
-			input.close();
+			bytes.erase(bytes.begin(), bytes.begin() + headerSize);
 
 			mosh(bytes, 0, noise, duplicate, move);
 
+			// Write to output file
 			int fileExtensionPos = file.find_last_of(".");
 			std::ofstream output(file.substr(0, fileExtensionPos) + "-moshed" + file.substr(fileExtensionPos, file.length()), std::ios::out | std::ios::binary);
-			output.write((char*)&header[0], headerSize * sizeof(char));
+
+			// Combine vectors
+			bytes.insert(bytes.begin(), header.begin(), header.end());
+			//output.write((char*)&header[0], header.size() * sizeof(char));
 			output.write((char*)&bytes[0], bytes.size() * sizeof(char));
 
 			output.close();

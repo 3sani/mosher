@@ -48,7 +48,7 @@ void mosh(std::vector<char>& buffer, int seed, float noise, float duplicate, flo
 	{
 		// Randomly move regions from the end of the file over the start
 		std::uniform_int_distribution<int> jump_dist(0, bufferSize / (2 * move));
-		std::uniform_int_distribution<int> copy_dist(0, move * bufferSize / 1000);
+		std::uniform_int_distribution<int> copy_dist(0, move * (bufferSize / 1000));
 		float moveProbability = 0.002 * move;
 		int copyLength = copy_dist(rng);
 		int copyFromTracker = bufferSize - copyLength;
