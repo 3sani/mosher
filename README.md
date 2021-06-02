@@ -2,6 +2,9 @@
 # mosher
 
 datamosher mainly designed for AVI video
+
+![example with n=65 d=20 m=25](https://i.imgur.com/9ERNIYD.png)
+
 (although any file will work, it is tuned towards getting decent looking results from low quality AVI video)
 
 
