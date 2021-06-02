@@ -61,12 +61,6 @@ int main(int argc, char* argv[])
 	printf("Moshing\n    noise=%f\n    duplicate=%f\n    move=%f\nfiles\n", noise, duplicate, move);
 	for (std::string file : filePaths) std::cout << "    " << file << std::endl;
 
-	// No idea what the real header length is
-	// Online it says all this stuff about it being 56 bytes or whatever,
-	// but if you open video files there's multiple KBs of data at the
-	// start where if you mess with it the video won't play back so <shrug>
-	const int AVI_HEADER_LENGTH = 7000;
-
 	for (std::string file : filePaths)
 	{
 		try
@@ -74,18 +68,24 @@ int main(int argc, char* argv[])
 			std::cout << "Moshing " << file << std::endl;
 			std::ifstream input(file, std::ios::binary);
 
-			char header[AVI_HEADER_LENGTH];
-			input.read(header, AVI_HEADER_LENGTH);
-
 			std::vector<char> bytes(
 				(std::istreambuf_iterator<char>(input)),
 				(std::istreambuf_iterator<char>()));
 
 			if (bytes.size() == 0)
 			{
-				std::cout << "File " << file << " non-existent or too small for header size, skipping" << std::endl;
+				std::cout << "File " << file << " empty, skipping file" << std::endl;
 				continue;
 			}
+
+			if (bytes.size() < headerSize)
+			{
+				std::cout << "File " << file << " smaller than header, skipping file" << std::endl;
+				continue;
+			}
+
+			std::vector<char> header;
+			header.insert(header.begin(), std::make_move_iterator(bytes.begin()), std::make_move_iterator(bytes.begin() + headerSize));
 
 			input.close();
 
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 
 			int fileExtensionPos = file.find_last_of(".");
 			std::ofstream output(file.substr(0, fileExtensionPos) + "-moshed" + file.substr(fileExtensionPos, file.length()), std::ios::out | std::ios::binary);
-			output.write((char*)header, AVI_HEADER_LENGTH);
+			output.write((char*)&header[0], headerSize * sizeof(char));
 			output.write((char*)&bytes[0], bytes.size() * sizeof(char));
 
 			output.close();
